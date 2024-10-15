@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "flake_detector"
+version = "0.1.0"
+description = "A package for detecting layered 2D material crystals within images using HDBSCAN."
+authors = ["Dan Forbes <df13@hw.ac.uk>"]
+license = "MIT"
+readme = "readme.md"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,6 @@
+numpy
+numba
+fast_hdbscan
+tifffile
+imagecodecs
+matplotlib
