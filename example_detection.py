@@ -9,11 +9,14 @@ from flake_detector import find_flakes, FlakeFindingResult
 
 def example_detect():
     # Load the image
-    image = tiff.imread("A2_O7_5x_Unprocessed White Light.tif")
+    try:
+        image = tiff.imread("A2_O7_5x_Unprocessed White Light.tif")
+    except ValueError as e:
+        raise RuntimeError("Failed to load image, make sure the required packages are installed.") from e
 
     # Generate a mask
     mask: None | np.ndarray = np.zeros(image.shape[:2], dtype=bool)
-    mask[20:170, 20:200] = True  # Square mask
+    mask[(my:=20):(mh:=170), (mx:=20):(mw:=200)] = True  # Rectangular mask
 
     # Detect flakes
     time_before = perf_counter()
@@ -72,6 +75,11 @@ def example_detect():
     fig, (ax_l, ax_r) = plt.subplots(1, 2)
     ax_l.imshow(image)
     ax_r.imshow(result.label_img, alpha=result.probabilities_img, cmap="tab20")  # Be careful with having more than 20 clusters here!
+    # Draw box around the mask if there is one
+    if mask is not None:
+        ax_l.add_patch(plt.Rectangle((mx, my), mw-mx, mh-my, edgecolor="red", facecolor="none", linewidth=3))
+        ax_r.add_patch(plt.Rectangle((mx, my), mw-mx, mh-my, edgecolor="red", facecolor="none", linewidth=3))
+
     plt.show()
 
 

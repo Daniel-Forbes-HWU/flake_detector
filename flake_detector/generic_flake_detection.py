@@ -1,6 +1,8 @@
 """
-TODO
-Dan Forbes - July-Oct 2024
+This module provides a a method (`find_flakes`) to detect clusters within an image using HDBSCAN clustering.
+The result of `find_flakes` in a dataclass (`FlakeFindingResult`),
+ which provides access to the data of each cluster and methods to manipulate them.
+Dan Forbes - March 2025
 """
 from time import perf_counter
 from dataclasses import dataclass, field
@@ -50,6 +52,23 @@ class FlakeFindingResult:
     masks(return_error_mask: bool = False) -> list[np.ndarray[bool]]: Returns a list of masks for each cluster in the image, sorted by decreasing cluster size.
         By default, the error mask (-1) is excluded from the list of masks.
     mask(label) -> np.ndarray[bool]: Returns a mask for the specified cluster label.
+
+    get_cluster_values(label) -> np.ndarray[uint8 | uint16]: Returns a flat array of values underlying the mask of the specified cluster from the original image
+        Raises an AttributeError if the source image is not available.
+
+    remove_cluster(label): Sets the cluster with the specified label to the error mask.
+
+    merge_clusters(old_label, new_label): Changes the label of the specified cluster to the new label.
+        NOTE This operation invalidates the cluster probabilities of merged clusters.
+
+    filter_by_size(min_size_px): Sets clusters with an area less than `min_size_px` to the error mask.
+
+    find_substrate_by_img_mode() -> tuple[int, np.ndarray[uint8 | uint16]]: Attempts to locate the substrate peak by finding the cluster with
+        mean value being closest to the source_image's modal value.
+        Returns the label of the cluster closest to the mode and the mode value.
+
+    find_alternate_substrate_labels(substrate_label) -> list[int]: Returns a list of labels which are similar in appearance to the substrate cluster.
+        NOTE This is relatively slow compared to the other methods with the current implementation!
 
     Note:
     The cluster size ordering of the labels and cluster_sizes properties may not be maintained when clusters are removed or merged.
@@ -141,7 +160,7 @@ class FlakeFindingResult:
             if (size < min_size_px) and (label != -1):
                 self.remove_cluster(label)
 
-    def find_substrate_by_img_mode(self) -> tuple[int, np.ndarray[np.uint8 | np.uint16]]:
+    def find_substrate_by_img_mode(self) -> tuple[int, npt.NDArray[np.uint8 | np.uint16]]:
         """Attempts to locate the substrate peak by finding the cluster with
         mean value being closest to the source_image's modal value.
         Returns the label of the cluster closest to the mode and the mode value."""
@@ -171,7 +190,7 @@ class FlakeFindingResult:
 def get_indices_for_image_shape(
         image_shape: tuple[int, int],
         dtype: npt.DTypeLike = np.uint8) -> np.ndarray:
-    """Returns an (m*n, 2) array of indices for an image of shape (m, n).
+    """Returns an (m*n, 2) array of indices for an image of shape image_shape=(m, n).
     Can be included in feature vectors for clustering, etc."""
     return np.indices(image_shape, dtype=dtype).transpose(1, 2, 0)
 
