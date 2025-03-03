@@ -7,7 +7,7 @@ First make sure you have a version of [Python](https://www.python.org/) < 3.13 i
 Install the required packages with pip using `py -m pip install -r requirements.txt`.
 
 # Installation
-Install this package using: py -m pip install .\dist\flake_detector-x.x.x-py2.py3-none-any.whl
+Install this package using: `py -m pip install .\dist\flake_detector-x.x.x-py2.py3-none-any.whl`
 Replacing the x's above with the latest version numbers.
 
 ## Alternative fast_hdbscan with caching
